@@ -22,6 +22,7 @@ const weatherSlice = createSlice({
         getWeather: (state, _: PayloadAction<string>) => {
             state.loading = true;
             state.error = null;
+            state.weatherData = null; 
         },
         fetchWeatherSuccess: (state, action: PayloadAction<WeatherApiResponse>) => {
             state.loading = false;
@@ -37,6 +38,9 @@ const weatherSlice = createSlice({
 export const { getWeather, fetchWeatherSuccess, fetchWeatherFailure } = weatherSlice.actions;
 
 export const WeatherSelector = {
-    getWeather: (state: RootState) => state.weather.weatherData
+    getWeather: (state: RootState) => state.weather.weatherData,
+    getLoading:(state: RootState) => state.weather.loading,
+    getError:(state:RootState) => state.weather.error
+    
 }
 export default weatherSlice.reducer;
