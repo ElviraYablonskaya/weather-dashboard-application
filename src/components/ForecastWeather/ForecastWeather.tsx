@@ -1,9 +1,11 @@
 import { useSelector } from "react-redux";
 import { WeatherSelector } from "../../redux/reducers/weatherSlice";
+import Loader from "../Loader/Loader";
 
 const ForecastWeather: React.FC = () => {
     const forecast = useSelector(WeatherSelector.getForecast);
     const weather = useSelector(WeatherSelector.getWeather);
+    const loading = useSelector(WeatherSelector.getLoading)
     const getIconUrl = (icon: string) => `http://openweathermap.org/img/wn/${icon}@2x.png`;
 
     const groupedForecast = forecast?.list?.reduce((acc: Record<string, any[]>, item) => {
@@ -16,7 +18,11 @@ const ForecastWeather: React.FC = () => {
     return (
         <div className="bg-white shadow-md rounded-xl p-8 w-full border">
             <h2 className="text-3xl font-bold text-gray-800">{weather?.name}</h2>
-            {groupedForecast ? (
+            {loading ? (
+                <div className="flex justify-center items-center">
+                    <Loader />
+                </div>
+            ) : groupedForecast ? (
                 <div className='flex justify-between text-center mt-4 max-xl:flex-wrap'>
                     {Object.entries(groupedForecast).map(([date, items]) => {
                         const firstItem = items[0];

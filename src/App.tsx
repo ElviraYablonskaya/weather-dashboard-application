@@ -6,7 +6,8 @@ import FavoriteCities from './components/FavoriteCities/FavoriteCities';
 import ForecastWeather from './components/ForecastWeather/ForecastWeather';
 
 const App: React.FC = () => {
-  const [city, setCity] = useState('');
+  const [city, setCity] = useState<string>('');
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const dispatch = useDispatch();
   const weather = useSelector(WeatherSelector.getWeather);
   const loading = useSelector(WeatherSelector.getLoading);
@@ -20,8 +21,12 @@ const App: React.FC = () => {
       citiesArray.forEach((city: string) => {
         dispatch(addFavoriteCity(city));
       });
+      // находится ли текущий город в избранном
+      if (weather && weather.name) {
+        setIsFavorite(citiesArray.includes(weather.name));
+      }
     }
-  }, [dispatch]);
+  }, [dispatch, weather]);
 
   const handleSearch = () => {
     dispatch(getWeather(city));
@@ -32,7 +37,13 @@ const App: React.FC = () => {
   const handleAddFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if (weather && weather.name) {
-      dispatch(addFavoriteCity(weather.name));
+      // существует ли город в локальном хранилище
+      const storedCities = JSON.parse(localStorage.getItem('favoriteCities') || '[]');
+      if (!storedCities.includes(weather.name)) {
+        dispatch(addFavoriteCity(weather.name));
+        setIsFavorite(true);
+        localStorage.setItem('favoriteCities', JSON.stringify([...storedCities, weather.name]));
+      }
     }
   };
 
@@ -86,9 +97,10 @@ const App: React.FC = () => {
             </div>
             <button
               onClick={handleAddFavorite}
-              className="mt-4 p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-200 w-full"
+              className={`mt-4 p-2 text-white rounded-lg w-full ${isFavorite ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 transition duration-200'}`}
+              disabled={isFavorite}
             >
-              Add to Favorites
+              {isFavorite ? "Added to Favorites" : "Add to Favorites"}
             </button>
           </div>
         ) : (
